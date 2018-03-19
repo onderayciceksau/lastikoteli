@@ -12,4 +12,30 @@ package lastikoteli.utils;
 public class Kullanici {
     private int id;
     private String kullanici_adi,email;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getKullanici_adi() {
+        return kullanici_adi;
+    }
+
+    public void setKullanici_adi(String kullanici_adi) {
+        this.kullanici_adi = kullanici_adi;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    
 }
