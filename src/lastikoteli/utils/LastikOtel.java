@@ -11,7 +11,7 @@ package lastikoteli.utils;
  */
 public class LastikOtel {
     private int id,lastik_taban,lastik_yanak,lastik_cap,adet;
-    private String lastik_tarihi;
+    private String lastik_tarihi,arac_plakasi;
     private long giris_tarihi,cikis_tarihi;    
     private Musteri musteri;
     private DepoRaflari raf;
@@ -26,6 +26,14 @@ public class LastikOtel {
         this.id = id;
     }
 
+    public String getArac_plakasi() {
+        return arac_plakasi;
+    }
+
+    public void setArac_plakasi(String arac_plakasi) {
+        this.arac_plakasi = arac_plakasi;
+    }
+    
     public int getLastik_taban() {
         return lastik_taban;
     }
