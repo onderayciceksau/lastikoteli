@@ -81,11 +81,12 @@ public class DBController {
             drList.add(dr);
 
         }
-
-        d.setDepo_raflari(new ArrayList<>(drList));
-        drList.clear();
-        dList.add(d);
-        d = null;
+        if (drList.size() > 0) {
+            d.setDepo_raflari(new ArrayList<>(drList));
+            drList.clear();
+            dList.add(d);
+            d = null;
+        }
 
         rs.close();
         psmt.close();
@@ -105,9 +106,26 @@ public class DBController {
         psmt.setString(7, lo.getArac_plakasi());
         psmt.setInt(8, lo.getAdet());
         psmt.setInt(9, lo.getMusteri().getId());
-        psmt.setInt(10, lo.getRaf().getId());        
+        psmt.setInt(10, lo.getRaf().getId());
         psmt.executeUpdate();
         psmt.close();
+    }
+    
+    public List<LastikOtel> getLastikOtelListe(String musteri, String plaka, Depolar depo, DepoRaflari raf) throws SQLException{
+        String sql = "select * from lastik_oteli as a "
+                + "inner join depo_raflari as b on a.raf_id=b.id "
+                + "inner join depolar as c on b.depo_id=c.id "
+                + "inner join musteri as d on d.id=a.musteri_id ";
+        List<LastikOtel> oList = new ArrayList<>();
+        Connection con = DBConnection.getInstance().getConnection();
+        PreparedStatement psmt = con.prepareStatement(sql);
+        ResultSet rs = psmt.executeQuery();
+        while (rs.next()) {
+            
+        }
+        rs.close();
+        psmt.close();
+        return oList;
     }
 
     public void lastikMarkaKayit(LastikMarka lm) throws Exception {
@@ -128,7 +146,7 @@ public class DBController {
         psmt.executeUpdate();
         psmt.close();
     }
-    
+
     public List<Musteri> getMusteriler() throws SQLException {
         List<Musteri> mList = new ArrayList<>();
         Connection con = DBConnection.getInstance().getConnection();
