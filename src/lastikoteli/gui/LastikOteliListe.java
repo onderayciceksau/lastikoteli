@@ -173,13 +173,13 @@ public class LastikOteliListe extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         try {
-Depolar depo_obj = null;
-DepoRaflari raf_obj = null;
+            Depolar depo_obj = null;
+            DepoRaflari raf_obj = null;
 
             if (depo.getSelectedItem() != null) {
                 String depo_adi = depo.getSelectedItem().toString();
                 if (!depo_adi.equalsIgnoreCase("")) {
-                     depo_obj = DBController.getInstance().getDepolar().stream().filter((a) -> a.getDepo_adi().equalsIgnoreCase(depo_adi)).findAny().orElseThrow(new Supplier<Exception>() {
+                    depo_obj = DBController.getInstance().getDepolar().stream().filter((a) -> a.getDepo_adi().equalsIgnoreCase(depo_adi)).findAny().orElseThrow(new Supplier<Exception>() {
                         @Override
                         public Exception get() {
                             return new Exception("Depo Eşleşmedi.");
@@ -189,7 +189,7 @@ DepoRaflari raf_obj = null;
                     if (rafno.getSelectedItem() != null) {
                         String raf_adi = rafno.getSelectedItem().toString();
                         if (!raf_adi.equalsIgnoreCase("")) {
-                             raf_obj = depo_obj.getDepo_raflari().stream().filter((a) -> a.getRaf_adi().equalsIgnoreCase(raf_adi)).findAny().orElseThrow(new Supplier<Exception>() {
+                            raf_obj = depo_obj.getDepo_raflari().stream().filter((a) -> a.getRaf_adi().equalsIgnoreCase(raf_adi)).findAny().orElseThrow(new Supplier<Exception>() {
                                 @Override
                                 public Exception get() {
                                     return new Exception("Raf Eşleşmedi.");
@@ -199,10 +199,10 @@ DepoRaflari raf_obj = null;
                     }
                 }
             }
-            
-            String musteri_str=musteri.getText();
-            String plaka_str=plaka.getText();
-            List<LastikOtel> liste=DBController.getInstance().getLastikOtelListe(musteri_str, plaka_str, depo_obj, raf_obj);
+
+            String musteri_str = musteri.getText();
+            String plaka_str = plaka.getText();
+            List<LastikOtel> liste = DBController.getInstance().getLastikOtelListe(musteri_str, plaka_str, depo_obj, raf_obj);
 
         } catch (Exception e) {
 

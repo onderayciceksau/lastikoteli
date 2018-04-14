@@ -297,7 +297,7 @@ public class LastikOteliKayit extends javax.swing.JFrame {
 
         }
         DefaultComboBoxModel dfcbM2 = new DefaultComboBoxModel(items);
-        jComboBox1.setModel(dfcbM2);
+        jComboBox2.setModel(dfcbM2);
 
         try {
             result_d = DBController.getInstance().getDepolar().stream().filter((a)
