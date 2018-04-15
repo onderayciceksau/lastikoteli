@@ -5,11 +5,15 @@
  */
 package lastikoteli.gui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Supplier;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 import lastikoteli.utils.DBController;
 import lastikoteli.utils.DepoRaflari;
 import lastikoteli.utils.Depolar;
@@ -47,6 +51,7 @@ public class LastikOteliListe extends javax.swing.JFrame {
         plaka = new javax.swing.JTextField();
         depo = new javax.swing.JComboBox<>();
         rafno = new javax.swing.JComboBox<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
 
@@ -133,25 +138,34 @@ public class LastikOteliListe extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Müşteri", "Lastik Markası", "Lastik Ebatı", "Lastik Tarihi", "Adet", "Plaka", "Depo", "RafNo."
+                "Müşteri", "Lastik Markası", "Lastik Ebatı", "Lastik Tarihi", "Adet", "Plaka", "Depo", "RafNo.", "İşlem"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
+
+        jScrollPane2.setViewportView(jScrollPane1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane1)
+            .addComponent(jScrollPane2)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 372, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -203,7 +217,32 @@ public class LastikOteliListe extends javax.swing.JFrame {
             String musteri_str = musteri.getText();
             String plaka_str = plaka.getText();
             List<LastikOtel> liste = DBController.getInstance().getLastikOtelListe(musteri_str, plaka_str, depo_obj, raf_obj);
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            liste.forEach((v) -> {
+                Object[] rowdata = new Object[8];
+                rowdata[0] = v.getMusteri().getAd() + " " + v.getMusteri().getSoyad();
+                rowdata[1] = v.getLastik_marka().getMarka_adi();
+                rowdata[2] = v.getLastik_taban() + " " + v.getLastik_yanak() + " R" + v.getLastik_cap();
+                rowdata[3] = v.getLastik_tarihi();
+                rowdata[4] = v.getAdet();
+                rowdata[5] = v.getArac_plakasi();
+                rowdata[6] = v.getRaf().getDepo().getDepo_adi();
+                rowdata[7] = v.getRaf().getRaf_adi();
+                JButton cikar = new JButton("Çıkar");
+                cikar.addActionListener((ActionEvent e) -> {
+                    try {
+                        DBController.getInstance().OtelCikis(v.getId());
+                        jButton1ActionPerformed(evt);
+                    } catch (Exception ex) {
 
+                        JOptionPane.showMessageDialog(this, "İşlem sırasında hata oluştu",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                rowdata[8] = cikar;
+                model.addRow(rowdata);
+            });
+            jTable1.setFillsViewportHeight(true);
         } catch (Exception e) {
 
             JOptionPane.showMessageDialog(this, "İşlem sırasında hata oluştu",
@@ -281,6 +320,7 @@ public class LastikOteliListe extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField musteri;
     private javax.swing.JTextField plaka;

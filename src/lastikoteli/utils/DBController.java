@@ -111,12 +111,20 @@ public class DBController {
         psmt.close();
     }
 
+    public void OtelCikis(int id) throws SQLException {
+        Connection con = DBConnection.getInstance().getConnection();
+        PreparedStatement psmt = con.prepareStatement("update lastik_oteli set cikis_tarihi=now() where id=?");
+        psmt.setInt(1, id);
+        psmt.executeUpdate();
+        psmt.close();
+    }
+
     public List<LastikOtel> getLastikOtelListe(String musteri, String plaka, Depolar depo, DepoRaflari raf) throws SQLException {
         String sql = "select * from lastik_oteli as a "
                 + "inner join depo_raflari as b on a.raf_id=b.id "
                 + "inner join depolar as c on b.depo_id=c.id "
                 + "inner join musteri as d on d.id=a.musteri_id "
-                + "where 1=1 ";
+                + "where a.cikis_tarihi is null ";
         List<Object> param = new ArrayList<>();
         if (musteri != null) {
             if (musteri.length() >= 3) {
@@ -145,12 +153,12 @@ public class DBController {
         List<LastikOtel> oList = new ArrayList<>();
         Connection con = DBConnection.getInstance().getConnection();
         PreparedStatement psmt = con.prepareStatement(sql);
-        for(int p=1;p<=param.size();p++){
-             psmt.setObject(p, param.get(p-1));
+        for (int p = 1; p <= param.size(); p++) {
+            psmt.setObject(p, param.get(p - 1));
         }
         ResultSet rs = psmt.executeQuery();
         while (rs.next()) {
-            LastikOtel lo=new LastikOtel();
+            LastikOtel lo = new LastikOtel();
             lo.setId(rs.getInt("otel_id"));
             lo.setAdet(rs.getInt("adet"));
             lo.setArac_plakasi(rs.getString("plaka"));
@@ -160,16 +168,16 @@ public class DBController {
             lo.setLastik_taban(rs.getInt("lastik_taban"));
             lo.setLastik_yanak(rs.getInt("lastik_yanak"));
             lo.setLastik_tarihi(rs.getString("lastik_tarihi"));
-            Musteri musteri_obj=new Musteri();
+            Musteri musteri_obj = new Musteri();
             musteri_obj.setId(rs.getInt("musteri_id"));
             musteri_obj.setAd(rs.getString("ad"));
             musteri_obj.setSoyad(rs.getString("soyad"));
             lo.setMusteri(musteri_obj);
-            LastikMarka lastik_marka_obj=new LastikMarka();
+            LastikMarka lastik_marka_obj = new LastikMarka();
             lastik_marka_obj.setId(rs.getInt("marka_id"));
             lastik_marka_obj.setMarka_adi(rs.getString("marka_adi"));
             lo.setLastik_marka(lastik_marka_obj);
-            DepoRaflari raf_obj=new DepoRaflari();
+            DepoRaflari raf_obj = new DepoRaflari();
             raf_obj.setId(rs.getInt("raf_id"));
             raf_obj.setRaf_adi(rs.getString("raf_adi"));
             raf_obj.setDepo(new Depolar());
