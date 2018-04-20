@@ -5,12 +5,9 @@
  */
 package lastikoteli.gui;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
-import lastikoteli.utils.DBConnection;
 import lastikoteli.utils.DBController;
 import lastikoteli.utils.Depolar;
 
@@ -43,7 +40,8 @@ public class DepoKayit extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jTextField2 = new javax.swing.JTextField();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Depo Kayit");
         setResizable(false);
 
         jLabel1.setText("Depo Adı:");
@@ -112,6 +110,7 @@ public class DepoKayit extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -119,9 +118,13 @@ public class DepoKayit extends javax.swing.JFrame {
         Depolar d = new Depolar();
         d.setDepo_adi(jTextField1.getText());
         d.setAdres(jTextField2.getText());
-        boolean devam = false;
         try {
             DBController.getInstance().depoKayit(d);
+            JOptionPane.showMessageDialog(this, "Kayıt Başarılı",
+                    "Bilgi", JOptionPane.INFORMATION_MESSAGE);
+            WindowEvent winclose = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+            Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(winclose);
+
         } catch (Exception e) {
 
             JOptionPane.showMessageDialog(this, "Kayıt sırasında hata oluştu",

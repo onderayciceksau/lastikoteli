@@ -18,6 +18,8 @@ import java.util.List;
  */
 public class DBController {
 
+    private static final Kullanici loginuser = new Kullanici();
+
     private DBController() {
 
     }
@@ -95,9 +97,9 @@ public class DBController {
 
     public void lastikOtelKayit(LastikOtel lo) throws Exception {
         Connection con = DBConnection.getInstance().getConnection();
-        PreparedStatement psmt = con.prepareStatement("insert into lastik_oteli(giris_tarihi,cikis_tarihi,kullanici_id,lastik_taban,lastik_yanak,lastik_cap,lastik_marka,lastik_tarihi,arac_plaka,adet,musteri_id,raf_id)"
-                + "values(now(),null,?,?,?,?,?,?,?,?,?)");
-        psmt.setInt(1, lo.getKullanici().getId());
+        PreparedStatement psmt = con.prepareStatement("insert into lastik_otel(giris_tarihi,cikis_tarihi,kullanici_id,lastik_taban,lastik_yanak,lastik_cap,lastik_marka,lastik_tarihi,arac_plaka,adet,musteri_id,raf_id)"
+                + "values(now(),null,?,?,?,?,?,?,?,?,?,?)");
+        psmt.setInt(1, loginuser.getId());
         psmt.setInt(2, lo.getLastik_taban());
         psmt.setInt(3, lo.getLastik_yanak());
         psmt.setInt(4, lo.getLastik_cap());
@@ -113,30 +115,34 @@ public class DBController {
 
     public void OtelCikis(int id) throws SQLException {
         Connection con = DBConnection.getInstance().getConnection();
-        PreparedStatement psmt = con.prepareStatement("update lastik_oteli set cikis_tarihi=now() where id=?");
+        PreparedStatement psmt = con.prepareStatement("update lastik_otel set cikis_tarihi=now() where id=?");
         psmt.setInt(1, id);
         psmt.executeUpdate();
         psmt.close();
     }
 
     public List<LastikOtel> getLastikOtelListe(String musteri, String plaka, Depolar depo, DepoRaflari raf) throws SQLException {
-        String sql = "select * from lastik_oteli as a "
+        String sql = "select a.id otel_id,adet,arac_plaka,giris_tarihi,cikis_tarihi,lastik_cap,"
+                + "lastik_yanak,lastik_taban,lastik_tarihi,d.id musteri_id,d.ad,d.soyad,"
+                + "m.id marka_id,marka_adi,raf_id,raf_adi,c.id depo_id,depo_adi "
+                + "from lastik_otel as a "
                 + "inner join depo_raflari as b on a.raf_id=b.id "
                 + "inner join depolar as c on b.depo_id=c.id "
                 + "inner join musteri as d on d.id=a.musteri_id "
+                + "inner join lastik_marka as m on a.lastik_marka=m.id "
                 + "where a.cikis_tarihi is null ";
         List<Object> param = new ArrayList<>();
         if (musteri != null) {
             if (musteri.length() >= 3) {
-                sql += "and concat(d.ad,' ',d.soyad) like '?%' ";
-                param.add(musteri);
+                sql += "and concat(d.ad,' ',d.soyad) LIKE ? ESCAPE '!'";
+                param.add(musteri+"%");
             }
         }
 
         if (plaka != null) {
             if (plaka.length() >= 3) {
-                sql += "and a.plaka like '?%' ";
-                param.add(plaka);
+                sql += "and a.arac_plaka LIKE ? ESCAPE '!' ";
+                param.add(plaka+"%");
             }
         }
 
@@ -161,9 +167,9 @@ public class DBController {
             LastikOtel lo = new LastikOtel();
             lo.setId(rs.getInt("otel_id"));
             lo.setAdet(rs.getInt("adet"));
-            lo.setArac_plakasi(rs.getString("plaka"));
+            lo.setArac_plakasi(rs.getString("arac_plaka"));
             lo.setGiris_tarihi(rs.getTimestamp("giris_tarihi").getTime());
-            lo.setCikis_tarihi(rs.getTimestamp("cikis_tarihi").getTime());
+            lo.setCikis_tarihi(0L);
             lo.setLastik_cap(rs.getInt("lastik_cap"));
             lo.setLastik_taban(rs.getInt("lastik_taban"));
             lo.setLastik_yanak(rs.getInt("lastik_yanak"));
@@ -248,7 +254,7 @@ public class DBController {
         int retObj = 0;
         try {
             Connection con = DBConnection.getInstance().getConnection();
-            PreparedStatement psmt = con.prepareStatement("select sum(adet) as sayi from lastik_oteli where raf_id=?");
+            PreparedStatement psmt = con.prepareStatement("select sum(adet) as sayi from lastik_otel where raf_id=?");
             ResultSet rs = psmt.executeQuery();
             while (rs.next()) {
                 retObj = rs.getInt("sayi");
@@ -260,4 +266,23 @@ public class DBController {
         }
         return retObj;
     }
+
+    public boolean kullaniciDogrula(String kadi, String pass) throws Exception {
+        boolean returnVal = false;
+        Connection con = DBConnection.getInstance().getConnection();
+        PreparedStatement psmt = con.prepareStatement("select id,kullanici_adi,email from kullanicilar where kullanici_adi=? and sifre=?");
+        psmt.setString(1, kadi);
+        psmt.setString(2, pass);
+        ResultSet rs = psmt.executeQuery();
+        if (rs.next()) {
+            loginuser.setId(rs.getInt("id"));
+            loginuser.setKullanici_adi(rs.getString("kullanici_adi"));
+            loginuser.setEmail(rs.getString("email"));
+            returnVal = true;
+        }
+        rs.close();
+        psmt.close();
+        return returnVal;
+    }
+
 }

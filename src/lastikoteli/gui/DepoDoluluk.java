@@ -5,13 +5,13 @@
  */
 package lastikoteli.gui;
 
-import java.awt.event.ActionEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-import javax.swing.JButton;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import lastikoteli.utils.DBController;
@@ -49,7 +49,13 @@ public class DepoDoluluk extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Depo Durum Listesi");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowActivated(java.awt.event.WindowEvent evt) {
+                formWindowActivated(evt);
+            }
+        });
 
         jLabel3.setText("Depo    :");
 
@@ -133,17 +139,18 @@ public class DepoDoluluk extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         try {
-            AtomicInteger toplam=new AtomicInteger(0);
-            AtomicInteger bos=new AtomicInteger(0);
+            AtomicInteger toplam = new AtomicInteger(0);
+            AtomicInteger bos = new AtomicInteger(0);
             List<Depolar> depolar_obj = DBController.getInstance().getDepolar();
             if (depo.getSelectedItem() != null) {
                 String depo_adi = depo.getSelectedItem().toString();
-                if (!depo_adi.equalsIgnoreCase("")) {
+                if (!depo_adi.equalsIgnoreCase("") && !depo_adi.equalsIgnoreCase("Tümü")) {
                     Depolar depo_obj = depolar_obj.stream().filter((a) -> a.getDepo_adi().equalsIgnoreCase(depo_adi)).findAny().orElseThrow(new Supplier<Exception>() {
                         @Override
                         public Exception get() {
@@ -155,27 +162,34 @@ public class DepoDoluluk extends javax.swing.JFrame {
                 }
             }
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            for (;;) {
+                try {
+                    model.removeRow(0);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    break;
+                }
+            }
             depolar_obj.forEach((v) -> {
-                v.getDepo_raflari().forEach((r)->{
-                    List<LastikOtel> lo=null;
-                    try{
-                        lo=DBController.getInstance().getLastikOtelListe(null, null, null, r);
-                    }catch(SQLException e){
-                        lo=new ArrayList<>();
+                v.getDepo_raflari().forEach((r) -> {
+                    List<LastikOtel> lo = null;
+                    try {
+                        lo = DBController.getInstance().getLastikOtelListe(null, null, null, r);
+                    } catch (SQLException e) {
+                        lo = new ArrayList<>();
                     }
-                Object[] rowdata = new Object[4];
-                rowdata[0] = v.getDepo_adi();
-                rowdata[1] = r.getRaf_adi();
-                rowdata[2] = r.getKapasite();
-                rowdata[3] = r.getKapasite() - lo.size();
-                bos.addAndGet(r.getKapasite() - lo.size());
-                toplam.addAndGet(r.getKapasite());
-                model.addRow(rowdata);
-                });                
+                    Object[] rowdata = new Object[4];
+                    rowdata[0] = v.getDepo_adi();
+                    rowdata[1] = r.getRaf_adi();
+                    rowdata[2] = r.getKapasite();
+                    rowdata[3] = r.getKapasite() - lo.size();
+                    bos.addAndGet(r.getKapasite() - lo.size());
+                    toplam.addAndGet(r.getKapasite());
+                    model.addRow(rowdata);
+                });
             });
             jTable1.setFillsViewportHeight(true);
-            toplamkap.setText("Toplam Kapasite :"+toplam.get());
-            boskon.setText("Boş Kontenjan :"+bos.get());
+            toplamkap.setText("Toplam Kapasite :" + toplam.get());
+            boskon.setText("Boş Kontenjan :" + bos.get());
         } catch (Exception e) {
 
             JOptionPane.showMessageDialog(this, "İşlem sırasında hata oluştu",
@@ -183,6 +197,21 @@ public class DepoDoluluk extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
+        Object[] items = new Object[0];
+        try {
+            items = DBController.getInstance().getDepolar().stream().map((a) -> a.getDepo_adi()).toArray();
+            ArrayList<Object> list = new ArrayList<>();
+            list.add(new String("Tümü"));
+            list.addAll(Arrays.asList(items));
+            items = list.toArray();
+        } catch (SQLException e) {
+
+        }
+        DefaultComboBoxModel dfcbM = new DefaultComboBoxModel(items);
+        depo.setModel(dfcbM);        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowActivated
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

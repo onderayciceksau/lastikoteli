@@ -5,20 +5,14 @@
  */
 package lastikoteli.gui;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
-import lastikoteli.utils.DBConnection;
 import lastikoteli.utils.DBController;
 import lastikoteli.utils.DepoRaflari;
-import lastikoteli.utils.Depolar;
 
 /**
  *
@@ -51,7 +45,8 @@ public class DepoRaflariKayit extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jSpinner1 = new javax.swing.JSpinner();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Depo Raf Kayit");
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowActivated(java.awt.event.WindowEvent evt) {
@@ -132,6 +127,7 @@ public class DepoRaflariKayit extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -152,6 +148,10 @@ public class DepoRaflariKayit extends javax.swing.JFrame {
                 }
             }));
             DBController.getInstance().depoRaflariKayit(dr);
+                        JOptionPane.showMessageDialog(this, "Kayıt Başarılı",
+                    "Bilgi", JOptionPane.INFORMATION_MESSAGE);
+            WindowEvent winclose = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+            Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(winclose);
         } catch (Exception e) {
             
             JOptionPane.showMessageDialog(this, "Kayıt sırasında hata oluştu",

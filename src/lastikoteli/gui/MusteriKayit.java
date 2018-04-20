@@ -5,14 +5,10 @@
  */
 package lastikoteli.gui;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
-import lastikoteli.utils.DBConnection;
 import lastikoteli.utils.DBController;
-import lastikoteli.utils.Depolar;
 import lastikoteli.utils.Musteri;
 
 /**
@@ -48,7 +44,8 @@ public class MusteriKayit extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Müşteri Kayıt");
         setResizable(false);
 
         jLabel1.setText("Cep Tel.:");
@@ -136,6 +133,7 @@ public class MusteriKayit extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -148,6 +146,10 @@ public class MusteriKayit extends javax.swing.JFrame {
         
         try {
             DBController.getInstance().musteriKayit(m);
+                        JOptionPane.showMessageDialog(this, "Kayıt Başarılı",
+                    "Bilgi", JOptionPane.INFORMATION_MESSAGE);
+            WindowEvent winclose = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+            Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(winclose);
         } catch (Exception e) {
 
             JOptionPane.showMessageDialog(this, "Kayıt sırasında hata oluştu",

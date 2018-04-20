@@ -6,14 +6,20 @@
 package lastikoteli.gui;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import lastikoteli.utils.ButtonColumn;
 import lastikoteli.utils.DBController;
 import lastikoteli.utils.DepoRaflari;
 import lastikoteli.utils.Depolar;
@@ -55,7 +61,8 @@ public class LastikOteliListe extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Lastik Oteli Liste");
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowActivated(java.awt.event.WindowEvent evt) {
                 formWindowActivated(evt);
@@ -74,12 +81,6 @@ public class LastikOteliListe extends javax.swing.JFrame {
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
-            }
-        });
-
-        depo.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                depoİtemStateChanged(evt);
             }
         });
 
@@ -138,11 +139,11 @@ public class LastikOteliListe extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Müşteri", "Lastik Markası", "Lastik Ebatı", "Lastik Tarihi", "Adet", "Plaka", "Depo", "RafNo.", "İşlem"
+                "id", "Müşteri", "Lastik Markası", "Lastik Ebatı", "Lastik Tarihi", "Adet", "Plaka", "Depo", "RafNo.", "İşlem"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -169,18 +170,54 @@ public class LastikOteliListe extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
         // TODO add your handling code here:
-        Object[] items = new Object[0];
+        Object[] items = new Object[1];
+        items[0] = "Tümü";
+        DefaultComboBoxModel rtdfcbM = new DefaultComboBoxModel(items);
+        rafno.setModel(rtdfcbM);
         try {
-            items = DBController.getInstance().getDepolar().stream().map((a) -> a.getDepo_adi()).toArray();
+            ArrayList<Object> listd = new ArrayList<>();
+            listd.add(new String("Tümü"));
+            listd.addAll(Arrays.asList(DBController.getInstance().getDepolar().stream().map((a) -> a.getDepo_adi()).toArray()));
+            items = listd.toArray();
         } catch (SQLException e) {
 
         }
         DefaultComboBoxModel dfcbM = new DefaultComboBoxModel(items);
         depo.setModel(dfcbM);
+        depo.addItemListener((ItemEvent arg0) -> {
+            //Do Something
+            try {
+                String depo_adi = depo.getSelectedItem().toString();
+                Object[] ritems = new Object[1];
+                ritems[0] = "Tümü";
+                if (!depo_adi.equalsIgnoreCase("tümü")) {
+                    Depolar depo_obj = DBController.getInstance().getDepolar().stream().filter((a) -> a.getDepo_adi().equalsIgnoreCase(depo_adi)).findAny().orElseThrow(new Supplier<Exception>() {
+                        @Override
+                        public Exception get() {
+                            return new Exception("Depo Eşleşmedi.");
+                        }
+                    });
+                    ArrayList<Object> list = new ArrayList<>();
+                    list.add(new String("Tümü"));
+                    list.addAll(Arrays.asList(depo_obj.getDepo_raflari().stream().map((a) -> a.getRaf_adi()).toArray()));
+                    ritems = list.toArray();
+                }
+
+                DefaultComboBoxModel rdfcbM = new DefaultComboBoxModel(ritems);
+                rafno.setModel(rdfcbM);
+
+            } catch (Exception e) {
+
+                JOptionPane.showMessageDialog(this, "İşlem sırasında hata oluştu",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        });
 
     }//GEN-LAST:event_formWindowActivated
 
@@ -192,7 +229,7 @@ public class LastikOteliListe extends javax.swing.JFrame {
 
             if (depo.getSelectedItem() != null) {
                 String depo_adi = depo.getSelectedItem().toString();
-                if (!depo_adi.equalsIgnoreCase("")) {
+                if (!depo_adi.equalsIgnoreCase("Tümü")) {
                     depo_obj = DBController.getInstance().getDepolar().stream().filter((a) -> a.getDepo_adi().equalsIgnoreCase(depo_adi)).findAny().orElseThrow(new Supplier<Exception>() {
                         @Override
                         public Exception get() {
@@ -202,7 +239,7 @@ public class LastikOteliListe extends javax.swing.JFrame {
 
                     if (rafno.getSelectedItem() != null) {
                         String raf_adi = rafno.getSelectedItem().toString();
-                        if (!raf_adi.equalsIgnoreCase("")) {
+                        if (!raf_adi.equalsIgnoreCase("Tümü")) {
                             raf_obj = depo_obj.getDepo_raflari().stream().filter((a) -> a.getRaf_adi().equalsIgnoreCase(raf_adi)).findAny().orElseThrow(new Supplier<Exception>() {
                                 @Override
                                 public Exception get() {
@@ -218,30 +255,47 @@ public class LastikOteliListe extends javax.swing.JFrame {
             String plaka_str = plaka.getText();
             List<LastikOtel> liste = DBController.getInstance().getLastikOtelListe(musteri_str, plaka_str, depo_obj, raf_obj);
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            for (;;) {
+                try {
+                    model.removeRow(0);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    break;
+                }
+            }
             liste.forEach((v) -> {
-                Object[] rowdata = new Object[8];
-                rowdata[0] = v.getMusteri().getAd() + " " + v.getMusteri().getSoyad();
-                rowdata[1] = v.getLastik_marka().getMarka_adi();
-                rowdata[2] = v.getLastik_taban() + " " + v.getLastik_yanak() + " R" + v.getLastik_cap();
-                rowdata[3] = v.getLastik_tarihi();
-                rowdata[4] = v.getAdet();
-                rowdata[5] = v.getArac_plakasi();
-                rowdata[6] = v.getRaf().getDepo().getDepo_adi();
-                rowdata[7] = v.getRaf().getRaf_adi();
-                JButton cikar = new JButton("Çıkar");
-                cikar.addActionListener((ActionEvent e) -> {
-                    try {
-                        DBController.getInstance().OtelCikis(v.getId());
-                        jButton1ActionPerformed(evt);
-                    } catch (Exception ex) {
-
-                        JOptionPane.showMessageDialog(this, "İşlem sırasında hata oluştu",
-                                "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                });
-                rowdata[8] = cikar;
+                Object[] rowdata = new Object[10];
+                rowdata[1] = v.getMusteri().getAd() + " " + v.getMusteri().getSoyad();
+                rowdata[2] = v.getLastik_marka().getMarka_adi();
+                rowdata[3] = v.getLastik_taban() + " " + v.getLastik_yanak() + " R" + v.getLastik_cap();
+                rowdata[4] = v.getLastik_tarihi();
+                rowdata[5] = v.getAdet();
+                rowdata[6] = v.getArac_plakasi();
+                rowdata[7] = v.getRaf().getDepo().getDepo_adi();
+                rowdata[8] = v.getRaf().getRaf_adi();
+                rowdata[9] = "Çıkar";
+                rowdata[0] = v.getId();
                 model.addRow(rowdata);
+
             });
+            Action delete = new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JTable table = (JTable) e.getSource();
+                    int modelRow = Integer.valueOf(e.getActionCommand());
+                    DefaultTableModel model = ((DefaultTableModel) table.getModel());
+                    try{
+                    DBController.getInstance().OtelCikis(Integer.valueOf(model.getValueAt(modelRow, 0).toString()));
+                    model.removeRow(modelRow);
+                    }catch(Exception ex){
+                                JOptionPane.showMessageDialog(LastikOteliListe.this, "İşlem sırasında hata oluştu",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                                ex.printStackTrace();
+                    }
+                }
+            };
+
+            ButtonColumn buttonColumn = new ButtonColumn(jTable1, delete, 9);
+            buttonColumn.setMnemonic(KeyEvent.VK_D);
             jTable1.setFillsViewportHeight(true);
         } catch (Exception e) {
 
@@ -250,31 +304,6 @@ public class LastikOteliListe extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void depoİtemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_depoİtemStateChanged
-        // TODO add your handling code here:
-        try {
-            String depo_adi = depo.getSelectedItem().toString();
-            Depolar depo_obj = DBController.getInstance().getDepolar().stream().filter((a) -> a.getDepo_adi().equalsIgnoreCase(depo_adi)).findAny().orElseThrow(new Supplier<Exception>() {
-                @Override
-                public Exception get() {
-                    return new Exception("Depo Eşleşmedi.");
-                }
-            });
-            Object[] items = new Object[0];
-
-            items = depo_obj.getDepo_raflari().toArray();
-
-            DefaultComboBoxModel dfcbM = new DefaultComboBoxModel(items);
-            rafno.setModel(dfcbM);
-
-        } catch (Exception e) {
-
-            JOptionPane.showMessageDialog(this, "İşlem sırasında hata oluştu",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-    }//GEN-LAST:event_depoİtemStateChanged
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

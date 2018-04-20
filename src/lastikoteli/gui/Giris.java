@@ -5,12 +5,10 @@
  */
 package lastikoteli.gui;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
-import lastikoteli.utils.DBConnection;
+import lastikoteli.utils.DBController;
 
 /**
  *
@@ -41,7 +39,7 @@ public class Giris extends javax.swing.JFrame {
         jPasswordField1 = new javax.swing.JPasswordField();
         jButton1 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Giriş Ekranı");
         setResizable(false);
 
@@ -112,45 +110,40 @@ public class Giris extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void close() {
+        WindowEvent winclose = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+        Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(winclose);
+    }
+
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         String kadi = jTextField1.getText();
         String pass = new String(jPasswordField1.getPassword());
         boolean devam = false;
         try {
-            devam = kullaniciDogrula(kadi, pass);
-                    if (devam) {
-            Anasayfa page = new Anasayfa();
-            this.setVisible(false);
-            page.setVisible(true);
-            
-        } else {
-            System.out.println("Kullanıcı adı veya Şifre yanlış");
-            JOptionPane.showMessageDialog(this, "Kullanıcı adı veya Şifre yanlış",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
+            devam = DBController.getInstance().kullaniciDogrula(kadi, pass);
+            if (devam) {
+                close();
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        new Anasayfa().setVisible(true);
+
+                    }
+                });
+            } else {
+                System.out.println("Kullanıcı adı veya Şifre yanlış");
+                JOptionPane.showMessageDialog(this, "Kullanıcı adı veya Şifre yanlış",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
         } catch (Exception e) {
-           
+
             JOptionPane.showMessageDialog(this, "Doğrulama sırasında hata oluştu",
                     "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
-    private boolean kullaniciDogrula(String kadi, String pass) throws Exception {
-        boolean returnVal = false;
-        Connection con = DBConnection.getInstance().getConnection();
-        PreparedStatement psmt = con.prepareStatement("select id from kullanicilar where kullanici_adi=? and sifre=?");
-        psmt.setString(1, kadi);
-        psmt.setString(2, pass);
-        ResultSet rs = psmt.executeQuery();
-        if (rs.next()) {
-            returnVal = true;
-        }
-        rs.close();
-        psmt.close();
-        return returnVal;
-    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
