@@ -5,6 +5,19 @@
  */
 package lastikoteli.gui;
 
+import java.awt.event.ActionEvent;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import lastikoteli.utils.DBController;
+import lastikoteli.utils.Depolar;
+import lastikoteli.utils.LastikOtel;
+
 /**
  *
  * @author imac
@@ -30,8 +43,9 @@ public class DepoDoluluk extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         depo = new javax.swing.JComboBox<>();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        toplamkap = new javax.swing.JLabel();
+        boskon = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
 
@@ -39,33 +53,36 @@ public class DepoDoluluk extends javax.swing.JFrame {
 
         jLabel3.setText("Depo    :");
 
-        depo.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                depoİtemStateChanged(evt);
+        toplamkap.setText("Toplam Kapasite :");
+
+        boskon.setText("Boş Kontenjan     :");
+
+        jButton1.setText("Göster");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
             }
         });
-
-        jLabel1.setText("Toplam Kapasite :");
-
-        jLabel2.setText("Boş Kontenjan     :");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jLabel2))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(depo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel1)))
-                .addGap(134, 134, 134))
+                        .addComponent(depo, 0, 231, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1)
+                        .addGap(161, 161, 161))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(toplamkap)
+                        .addGap(141, 141, 141)
+                        .addComponent(boskon)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -74,10 +91,12 @@ public class DepoDoluluk extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(depo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addContainerGap(45, Short.MAX_VALUE))
+                    .addComponent(jButton1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(toplamkap)
+                    .addComponent(boskon))
+                .addGap(24, 24, 24))
         );
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -110,36 +129,60 @@ public class DepoDoluluk extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void depoİtemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_depoİtemStateChanged
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-//        try {
-//            String depo_adi = depo.getSelectedItem().toString();
-//            Depolar depo_obj = DBController.getInstance().getDepolar().stream().filter((a) -> a.getDepo_adi().equalsIgnoreCase(depo_adi)).findAny().orElseThrow(new Supplier<Exception>() {
-//                @Override
-//                public Exception get() {
-//                    return new Exception("Depo Eşleşmedi.");
-//                }
-//            });
-//            Object[] items = new Object[0];
-//
-//            items = depo_obj.getDepo_raflari().toArray();
-//
-//            DefaultComboBoxModel dfcbM = new DefaultComboBoxModel(items);
-//            rafno.setModel(dfcbM);
-//
-//        } catch (Exception e) {
-//
-//            JOptionPane.showMessageDialog(this, "İşlem sırasında hata oluştu",
-//                "Error", JOptionPane.ERROR_MESSAGE);
-//            e.printStackTrace();
-//        }
-    }//GEN-LAST:event_depoİtemStateChanged
+        try {
+            AtomicInteger toplam=new AtomicInteger(0);
+            AtomicInteger bos=new AtomicInteger(0);
+            List<Depolar> depolar_obj = DBController.getInstance().getDepolar();
+            if (depo.getSelectedItem() != null) {
+                String depo_adi = depo.getSelectedItem().toString();
+                if (!depo_adi.equalsIgnoreCase("")) {
+                    Depolar depo_obj = depolar_obj.stream().filter((a) -> a.getDepo_adi().equalsIgnoreCase(depo_adi)).findAny().orElseThrow(new Supplier<Exception>() {
+                        @Override
+                        public Exception get() {
+                            return new Exception("Depo Eşleşmedi.");
+                        }
+                    });
+                    depolar_obj.clear();
+                    depolar_obj.add(depo_obj);
+                }
+            }
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            depolar_obj.forEach((v) -> {
+                v.getDepo_raflari().forEach((r)->{
+                    List<LastikOtel> lo=null;
+                    try{
+                        lo=DBController.getInstance().getLastikOtelListe(null, null, null, r);
+                    }catch(SQLException e){
+                        lo=new ArrayList<>();
+                    }
+                Object[] rowdata = new Object[4];
+                rowdata[0] = v.getDepo_adi();
+                rowdata[1] = r.getRaf_adi();
+                rowdata[2] = r.getKapasite();
+                rowdata[3] = r.getKapasite() - lo.size();
+                bos.addAndGet(r.getKapasite() - lo.size());
+                toplam.addAndGet(r.getKapasite());
+                model.addRow(rowdata);
+                });                
+            });
+            jTable1.setFillsViewportHeight(true);
+            toplamkap.setText("Toplam Kapasite :"+toplam.get());
+            boskon.setText("Boş Kontenjan :"+bos.get());
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(this, "İşlem sırasında hata oluştu",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -177,12 +220,13 @@ public class DepoDoluluk extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel boskon;
     private javax.swing.JComboBox<String> depo;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JLabel toplamkap;
     // End of variables declaration//GEN-END:variables
 }
