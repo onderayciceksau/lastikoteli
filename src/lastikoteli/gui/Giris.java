@@ -42,6 +42,7 @@ public class Giris extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Giriş Ekranı");
         setResizable(false);
 
         jLabel1.setText("Kullanıcı Adı:");
@@ -68,11 +69,11 @@ public class Giris extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
                     .addComponent(jPasswordField1))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(153, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(230, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1)
-                .addGap(83, 83, 83))
+                .addGap(84, 84, 84))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -85,9 +86,9 @@ public class Giris extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton1)
-                .addContainerGap(121, Short.MAX_VALUE))
+                .addContainerGap(115, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -108,20 +109,21 @@ public class Giris extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         String kadi = jTextField1.getText();
-        String pass = jPasswordField1.getText();
+        String pass = new String(jPasswordField1.getPassword());
         boolean devam = false;
         try {
             devam = kullaniciDogrula(kadi, pass);
                     if (devam) {
-            //Anasayfa page = new Anasayfa();
-            //page.setVisible(true);
-            //JLabel label = new JLabel("Anasayfa:" + value1);
-            //page.getContentPane().add(label);
+            Anasayfa page = new Anasayfa();
+            this.setVisible(false);
+            page.setVisible(true);
+            
         } else {
             System.out.println("Kullanıcı adı veya Şifre yanlış");
             JOptionPane.showMessageDialog(this, "Kullanıcı adı veya Şifre yanlış",
